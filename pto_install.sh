@@ -19,6 +19,36 @@ fi
 #
 #
 #
+echo "Настройка SSH"
+sleep 3
+#в файле hosts.allow разрешаем доступ ip-адресам которые будут подключаться к настриваемой машине по протоколу SSH
+IPSSH=$(whiptail --title "Настройка доступа SSH" --inputbox "Через запятую, разделяя пробелом введите ip-адреса, которые будут подключаться к настриваемой машине по протоколу SSH (пример: 10.10.73.16, 10.10.73.17 и т.д.)" 10 60 10.10.73.16,  3>&1 1>&2 2>&3)
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+echo "Вы предоставили доступ следующим ip-адресам:" $IPSSH
+sleep 5
+echo "$PASSWORD" | sudo -S  sh -c "echo 'sshd: $IPSSH' >> /etc/hosts.allow"
+#в файле hosts.deny запрещаем подключение к настраиваемой машине всем ip-адресам не включённым список hosts.allow 
+echo "$PASSWORD" | sudo -S  sh -c "echo 'sshd: ALL' >> /etc/hosts.deny"
+#меняем порт подключения 22 на 2002
+echo "$PASSWORD" | sudo -S  sed -i '17d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S  perl -i -pe 'print "Port 2002\n" if $. == 17' /etc/ssh/sshd_config
+#открываем доступ только по протоколу IPv4
+echo "$PASSWORD" | sudo -S  sed -i '18d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S  perl -i -pe 'print "AddressFamily inet\n" if $. == 18' /etc/ssh/sshd_config
+#запрещаем подключение от учётной записи root
+echo "$PASSWORD" | sudo -S  sed -i '36d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S  perl -i -pe 'print "PermitRootLogin no\n" if $. == 36' /etc/ssh/sshd_config
+#добавляем порт 2002 в selinux и перезапускаем службу sshd 
+echo "$PASSWORD" | sudo -S  semanage port -a -t ssh_port_t -p tcp 2002
+echo "$PASSWORD" | sudo -S  systemctl restart sshd
+else
+	echo "Вы выбрали отмену."
+	exit
+fi
+#
+#
+#
 echo "Установка и настройка VNC"
 sleep 3
 #устанавливаем программу x11vnc
@@ -40,6 +70,7 @@ IPVNC=$(whiptail --title "Настройка доступа VNC" --inputbox "Ч�
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
 echo "Вы предоставили доступ следующим ip-адресам:" $IPVNC
+else
 	echo "Вы выбрали отмену."
 	exit
 fi
@@ -55,7 +86,6 @@ echo "$PASSWORD" | sudo -S systemctl daemon-reload
 echo "$PASSWORD" | sudo -S systemctl enable x11vnc.service
 echo "$PASSWORD" | sudo -S systemctl start x11vnc.service
 echo "$PASSWORD" | sudo -S systemctl status x11vnc.service --no-pager
-else
 #
 #
 #
@@ -73,7 +103,7 @@ echo "$PASSWORD" | sudo -S  mkdir /mnt/Disk2
 echo "$PASSWORD" | sudo -S  mount /mnt/Disk2
 #задаём директории Disk2 в которую примонтирован HDD доступ на чтение/запись/выполнение для всех: 
 echo "$PASSWORD" | sudo -S  chmod 777 /mnt/Disk2/
-#создаём символическую ссылку диска на рабочем столе локального пользователя:
+#создаём символическую ссылку диска на рабочем столе локального пользователя
 ln -s /mnt/Disk2 /home/$USER/Рабочий\ стол/
 #редактируем файл /etc/fstab монтируя вновь созданный раздел диска /dev/sdb1 в директорию Disk2
 echo "$PASSWORD" | sudo -S  sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2' >> /etc/fstab"
@@ -99,7 +129,7 @@ realm discover PTO.local
 #устанавливаем программу добавления в домен
 echo "$PASSWORD" | sudo -S dnf -y install join-to-domain
 #запускаем скрипт добавления в домен
-echo "$PASSWORD" | sudo -S sudo join-to-domain.sh
+sudo join-to-domain.sh
 sleep 60
 sudo join-to-domain.sh
 #проверяем доступность домена
