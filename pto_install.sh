@@ -52,41 +52,40 @@ fi
 echo "Установка и настройка VNC"
 sleep 3
 #устанавливаем программу x11vnc
-echo "$PASSWORD" | sudo -S  dnf -y install x11vnc
+echo "$PASSWORD" | sudo -S dnf -y install x11vnc
 #создаём временную переменную $PASSVNC для подставления пароля
 PASSVNC=$(whiptail --title "Ввод пароля" --passwordbox "Задайте пароль для доступа по VNC и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
 #задаём пароль на вход
-echo "$PASSWORD" | sudo -S  x11vnc -storepasswd $PASSVNC /etc/vncpasswd
+echo "$PASSWORD" | sudo -S x11vnc -storepasswd $PASSVNC /etc/vncpasswd
 else
 	echo "Вы выбрали отмену."
 	exit
 fi
 #выдаём права на чтение и выполнение для файла с паролем
-echo "$PASSWORD" | sudo -S  chmod 544 /etc/vncpasswd
-#скачиваем и подгружаем сервисный файл с настройками
-echo "$PASSWORD" | sudo -S  cd /lib/systemd/system/
+echo "$PASSWORD" | sudo -S chmod 544 /etc/vncpasswd
 #создаём службу для подключения по протоколу vnc
 IPVNC=$(whiptail --title "Настройка доступа VNC" --inputbox "Через запятую, без пробелов введите ip-адреса, которые будут подключаться к настриваемой машине по протоколу VNC (пример: 10.10.73.16,10.10.73.17 и т.д.)" 10 60 10.10.73.16,  3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
 echo "Вы предоставили доступ следующим ip-адресам:" $IPVNC
+	echo "Вы выбрали отмену."
+	exit
+fi
 sleep 5
+#заходим в сервисную директорию и редактируем файл для автозапуска сервиса x11vnc.service
+echo "$PASSWORD" | sudo -S touch /lib/systemd/system/x11vnc.service
 echo "$PASSWORD" | sudo -S chmod 777 /lib/systemd/system/x11vnc.service
 echo "$PASSWORD" | sudo -S echo -e "[Unit]\nDescription=x11vnc server for GDM\nAfter=display-manager.service\n[Service]\nExecStart=/usr/bin/x11vnc -allow $IPVNC -many -shared -forever -nomodtweak -capslock -display :0 -auth guess -noxdamage -rfbauth /etc/vncpasswd\nRestart=on-failure\nRestartSec=3\n[Install]\nWantedBy=graphical.target" > /lib/systemd/system/x11vnc.service
 #даём файлу x11vnc.service права на выполнение
 echo "$PASSWORD" | sudo -S chmod 755 /lib/systemd/system/x11vnc.service
-cd
 #перезагружаем демона, включаем службу в автозагрузку, запускаем и проверяем статус
 echo "$PASSWORD" | sudo -S systemctl daemon-reload
 echo "$PASSWORD" | sudo -S systemctl enable x11vnc.service
 echo "$PASSWORD" | sudo -S systemctl start x11vnc.service
 echo "$PASSWORD" | sudo -S systemctl status x11vnc.service --no-pager
 else
-	echo "Вы выбрали отмену."
-	exit
-fi
 #
 #
 #
@@ -105,7 +104,7 @@ echo "$PASSWORD" | sudo -S  mount /mnt/Disk2
 #задаём директории Disk2 в которую примонтирован HDD доступ на чтение/запись/выполнение для всех: 
 echo "$PASSWORD" | sudo -S  chmod 777 /mnt/Disk2/
 #создаём символическую ссылку диска на рабочем столе локального пользователя:
-echo "$PASSWORD" | sudo -S  ln -s /mnt/Disk2	/home/$USER/Рабочий\ стол/
+ln -s /mnt/Disk2 /home/$USER/Рабочий\ стол/
 #редактируем файл /etc/fstab монтируя вновь созданный раздел диска /dev/sdb1 в директорию Disk2
 echo "$PASSWORD" | sudo -S  sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2' >> /etc/fstab"
 #
@@ -114,7 +113,7 @@ echo "$PASSWORD" | sudo -S  sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2'
 echo "Добавляем компьютер в домен"
 sleep 3
 #устанавливаем правильный часовой пояс
-echo "$PASSWORD" | sudo -S  timedatectl set-timezone Asia/Yekaterinburg
+echo "$PASSWORD" | sudo -S timedatectl set-timezone Asia/Yekaterinburg
 timedatectl | grep "Time zone"
 date
 chronyc tracking
@@ -128,10 +127,11 @@ export LANG=en_US.UTF-8
 #проверяем доступность домена
 realm discover PTO.local
 #устанавливаем программу добавления в домен
-echo "$PASSWORD" | sudo -S  dnf -y install join-to-domain
+echo "$PASSWORD" | sudo -S dnf -y install join-to-domain
 #запускаем скрипт добавления в домен
-sleep 10
-sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh
+echo "$PASSWORD" | sudo -S sudo join-to-domain.sh
+sleep 60
+sudo join-to-domain.sh
 #проверяем доступность домена
 realm list
 #создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
