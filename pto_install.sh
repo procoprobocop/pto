@@ -1,5 +1,8 @@
 #!/bin/bash
 #I. Раздел (Обновление, SSH, VNC, Disk2, Ввод в домен)
+#
+#
+#
 #создаём временную переменную "$PASSWORD" для подставления пароля администратора
 PASSWORD=$(whiptail --title "Ввод пароля администратора" --passwordbox "Введите пароль Локального администратора и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
 exitstatus=$?
@@ -8,7 +11,7 @@ if [ $exitstatus = 0 ]; then
 echo "Производится обновление системы"
 sleep 3
 echo "$PASSWORD" | sudo -S dnf -y install kernel-lt-5.15.35-1.el7.3.x86_64 kernel-lt-tools-5.15.35-1.el7.3.x86_64 kernel-lt-devel-5.15.35-1.el7.3.x86_64 kernel-lt-headers-5.15.35-1.el7.3.x86_64
-echo "$PASSWORD" | sudo -S dnf -y update && sudo -S dnf -y upgrade && sudo -S dnf -y autoremove && uname -r
+echo "$PASSWORD" | sudo -S dnf -y update && echo "$PASSWORD" | sudo -S dnf -y upgrade && echo "$PASSWORD" | sudo -S dnf -y autoremove && uname -r
 else
 	echo "Вы выбрали отмену."
 	exit
@@ -78,7 +81,7 @@ cd
 #перезагружаем демона, включаем службу в автозагрузку, запускаем и проверяем статус
 echo "$PASSWORD" | sudo -S systemctl daemon-reload
 echo "$PASSWORD" | sudo -S systemctl enable x11vnc.service
-echo "$PASSWORD" | sudo -S systemctl restart x11vnc.service
+echo "$PASSWORD" | sudo -S systemctl start x11vnc.service
 echo "$PASSWORD" | sudo -S systemctl status x11vnc.service --no-pager
 else
 	echo "Вы выбрали отмену."
@@ -127,8 +130,8 @@ realm discover PTO.local
 #устанавливаем программу добавления в домен
 echo "$PASSWORD" | sudo -S  dnf -y install join-to-domain
 #запускаем скрипт добавления в домен
-sudo join-to-domain.sh || sudo join-to-domain.sh || sudo join-to-domain.sh || sudo join-to-domain.sh
 sleep 10
+sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh || sleep 10 && sudo join-to-domain.sh
 #проверяем доступность домена
 realm list
 #создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
@@ -150,9 +153,33 @@ fi
 #
 #
 #
-
-
-
+#II. Раздел (Обновление, SSH, VNC, Disk2, Ввод в домен)
+#
+#
+#
+#создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
+DOMAIN=$(dnsdomainname -d)
+#создаём мягкую ссылку диска Disk2 на рабочем столе
+ln -s /mnt/Disk2 /home/$USER@$DOMAIN/Рабочий\ стол/
+#
+#
+#
+#создаём временную переменную "$PASSWORD" для подставления пароля администратора
+PASSWORD=$(whiptail --title "Ввод пароля администратора" --passwordbox "Введите пароль Локального администратора и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+#проверка на наличие пользователя в группе администраторов
+echo "Производится обновление системы"
+sleep 3
+echo "$PASSWORD" | sudo -S dnf -y install kernel-lt-5.15.35-1.el7.3.x86_64 kernel-lt-tools-5.15.35-1.el7.3.x86_64 kernel-lt-devel-5.15.35-1.el7.3.x86_64 kernel-lt-headers-5.15.35-1.el7.3.x86_64
+echo "$PASSWORD" | sudo -S dnf -y update && sudo -S dnf -y upgrade && sudo -S dnf -y autoremove && uname -r
+else
+	echo "Вы выбрали отмену."
+	exit
+fi
+#
+#
+#
 
 
 
