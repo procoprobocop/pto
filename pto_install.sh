@@ -153,33 +153,7 @@ fi
 #
 #
 #
-#II. Раздел (Обновление, SSH, VNC, Disk2, Ввод в домен)
-#
-#
-#
-#создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
-DOMAIN=$(dnsdomainname -d)
-#создаём мягкую ссылку диска Disk2 на рабочем столе
-ln -s /mnt/Disk2 /home/$USER@$DOMAIN/Рабочий\ стол/
-#
-#
-#
-#создаём временную переменную "$PASSWORD" для подставления пароля администратора
-PASSWORD=$(whiptail --title "Ввод пароля администратора" --passwordbox "Введите пароль Локального администратора и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
-exitstatus=$?
-if [ $exitstatus = 0 ]; then
-#проверка на наличие пользователя в группе администраторов
-echo "Производится обновление системы"
-sleep 3
-echo "$PASSWORD" | sudo -S dnf -y install kernel-lt-5.15.35-1.el7.3.x86_64 kernel-lt-tools-5.15.35-1.el7.3.x86_64 kernel-lt-devel-5.15.35-1.el7.3.x86_64 kernel-lt-headers-5.15.35-1.el7.3.x86_64
-echo "$PASSWORD" | sudo -S dnf -y update && sudo -S dnf -y upgrade && sudo -S dnf -y autoremove && uname -r
-else
-	echo "Вы выбрали отмену."
-	exit
-fi
-#
-#
-#
+
 
 
 
