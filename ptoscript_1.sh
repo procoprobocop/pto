@@ -1,9 +1,6 @@
 #!/bin/bash
 echo "I. УСТАНОВКА И НАСТРОЙКА ОС"
 sleep 3
-echo "Производим резервное копирование перед обновлением"
-sleep 3
-echo "$PASSROOT" | sudo timeshift --create --rsync --yes --comments "Before system update" --target /dev/sdb1
 #создаём временную переменную "$PASSWORD" для подставления пароля администратора
 PASSWORD=$(whiptail --title "Ввод пароля администратора" --passwordbox "Введите пароль Локального администратора и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
 exitstatus=$?
