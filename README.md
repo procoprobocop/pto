@@ -13,7 +13,7 @@ _#Подготовка к запуску скриптов_
 
 **cd /usr/share**
 
-**git clone https://github.com/procoprobocop/pto.git**
+**sudo git clone https://github.com/procoprobocop/pto.git**
 
 **cd pto/** 
 
