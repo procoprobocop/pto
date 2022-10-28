@@ -26,7 +26,7 @@ if [ $exitstatus = 0 ]; then
 echo "Вы добавили следующий сетевой диск:" $DISKNAME
 #создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
 DOMAIN=$(dnsdomainname -d)
-echo -e "[Desktop Entry]\nVersion=1.0\nType=Link\nIcon=mate-disk-usage-analyzer.png\nName[ru_RU]=Obmen PTO\nURL=smb://$USER@$DISKNAME\nName[]=Obmen PTO" > /home/$USER@$DOMAIN/Рабочий\ стол/Obmen\ PTO.desktop
+echo -e "[Desktop Entry]\nVersion=1.0\nType=Link\nIcon=mate-disk-usage-analyzer.png\nName[ru_RU]=Obmen PTO\nURL=$DOMAIN;smb://$USER@$DISKNAME\nName[]=Obmen PTO" > /home/$USER@$DOMAIN/Рабочий\ стол/Obmen\ PTO.desktop
 #даём файлу Obmen.desktop права на выполнение
 chmod ugo+x /home/$USER@$DOMAIN/Рабочий\ стол/Obmen\ PTO.desktop
 #устанавливаем редактор gui-оболочки и отключаем отображение смонтированных дисков на рабочем столе
@@ -123,8 +123,8 @@ do
 		exitstatus=$?
 		if [ $exitstatus = 0 ]; then
 		#связываем файл с паролем - обязательно от имени текущего пользователя
-		vipnetclient installkeys $DSTFILE --psw $VIPPASS
 		echo "Повторите ввод парольной фразы от вашего DST-файла"
+		vipnetclient installkeys $DSTFILE --psw $VIPPASS
 else
 	echo "Вы выбрали отмену."
 	exit
@@ -177,7 +177,8 @@ fi
 		cd
 		#запускаем скрипт
 		sleep 10
-		echo "$PASSWORD" | sudo -S /opt/kaspersky/klnagent64/lib/bin/setup/postinstall.pl && echo "Установка Kaspersky Endpoint Security выполняется только из Сервера администрирования Касперского!"
+		sudo /opt/kaspersky/klnagent64/lib/bin/setup/postinstall.pl
+		echo "Установка Kaspersky Endpoint Security выполняется только из Сервера администрирования Касперского!"
 		sleep 10
     fi
     if [ $prog == "\"Р7-office\"" ]; then
@@ -195,7 +196,9 @@ fi
 		xdg-mime default "libreoffice-draw.desktop" "application/pdf"
 		#создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
 		DOMAIN=$(dnsdomainname -d)
-		cp /mnt/Disk2/repo/r7/Документ.docx Презентация.pptx Таблица.xlsx /home/$USER@$DOMAIN/Шаблоны/
+		cp /mnt/Disk2/repo/r7/Документ.docx /home/$USER@$DOMAIN/Шаблоны/
+		cp /mnt/Disk2/repo/r7/Презентация.pptx /home/$USER@$DOMAIN/Шаблоны/
+		cp /mnt/Disk2/repo/r7/Таблица.xlsx /home/$USER@$DOMAIN/Шаблоны/
 		echo "Лицензию активируете самостоятельно"
 		sleep 15
     fi
@@ -286,7 +289,7 @@ fi
 		#ставим пакет с плагином в систему, а затем инсталируем его руками в браузер 
 		#Будем делать на примере браузера Яндекс.Браузер
 		python -m webbrowser "https://chrome.google.com/webstore/detail/расширение-для-плагина-го/pbefkdcndngodfeigfdgiodgnmbgcfha?hl=ru&authuser=1"
-		sleep 30
+		sleep 60
 		killall yandex_browser
 		sleep 10
 		echo "CryptoPro Browser Plug-in"
@@ -294,7 +297,7 @@ fi
 		cd /mnt/Disk2/repo/plugins/
 		#ставим пакет с плагином в систему, а затем инсталируем его руками в браузер 
 		echo "$PASSWORD" | sudo -S dnf -y install ./cprocsp-pki*rpm
-		python -m webbrowser "https://addons.opera.com/en/extensions/details/cryptopro-extension-for-cades-browser-plug-in/ && xdg-open https://www.cryptopro.ru/sites/default/files/products/cades/demopage/cades_bes_sample.html"
+		python -m webbrowser "https://chrome.google.com/webstore/detail/cryptopro-extension-for-c/iifchhfnnmpdbibifmljnfjhpififfog?hl=ru && xdg-open https://www.cryptopro.ru/sites/default/files/products/cades/demopage/cades_bes_sample.html"
 		echo "Вставьте носитель с сертификатом и проверяем подпись в появившемся диалоговом окне выбираем разрешить операцию ОК"
 		sleep 60
 		killall yandex_browser
@@ -302,21 +305,22 @@ fi
 		echo "Контур.Плагин"
 		sleep 3
 		python -m webbrowser "https://chrome.google.com/webstore/detail/%D0%BA%D0%BE%D0%BD%D1%82%D1%83%D1%80%D0%BF%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD/hnhppcgejeffnbnioloohhmndpmclaga"
-		sleep 30
+		sleep 60
 		killall yandex_browser
 		sleep 10
 		#ставим пакет с плагином в систему, а затем инсталируем его руками в браузер 
 		cd /mnt/Disk2/repo/plugins/
-		echo "$PASSWORD" | sudo -S dnf -y install kontur.plugin*.rpm
+		echo "$PASSWORD" | sudo -S dnf -y install kontur.plugin_amd64.rpm
+		echo "$PASSWORD" | sudo -S dnf -y install kontur.plugin-4.0.6.244-1.x86_64.001499.rpm
 		python -m webbrowser "https://install.kontur.ru/kekep?_ga=2.232358492.2121287449.1613045347-237475827.1613045347"
-		sleep 30
+		sleep 60
 		killall yandex_browser
 		sleep 10
 		#ставим пакет с плагином в систему, а затем инсталируем его руками в браузер 
 		echo "$PASSWORD" | sudo -S dnf -y install diag.plugin*.rpm
 		sleep 10
 		python -m webbrowser "https://install.kontur.ru/kekep?_ga=2.232358492.2121287449.1613045347-237475827.1613045347"
-		sleep 30
+		sleep 60
 		killall yandex_browser
 		sleep 10
     fi
@@ -441,21 +445,17 @@ alsamixer
 #
 #
 #
+echo "Производим резервное копирование после установки программ"
+sleep 3
+echo "$PASSROOT" | sudo -S timeshift --create --rsync --yes --comments "Before system update" --target /dev/sdb1
+#
+#
+#
 echo "Удаляем группу Пользователи домена из файла /etc/sudoers и перезагружаемся"
 sleep 3
 echo "$PASSWORD" | sudo -S rm -rf /mnt/Disk2/repo
 echo "$PASSWORD" | sudo -S rm -rf /mnt/Disk2/work
 echo "$PASSWORD" | sudo -S sed -i '109d' /etc/sudoers
-#
-#
-#
-echo "Производим резервное копирование после установки программ"
-sleep 3
-echo "$PASSROOT" | sudo -S timeshift --create --rsync --yes --comments "Before system update" --target /dev/sdb1
 #перезагружаемся, иначе магия не сработает
-if (whiptail --title "Требуется перезагрузка системы" --yesno "Перезагрузить систему сейчас?" 10 60) then
-	echo "$PASSWORD" | sudo -S reboot
-else
-	echo "Не забудьте перезагрузить систему"
-	exit
-fi
+echo "Не забудьте перезагрузить систему"
+sleep 5
