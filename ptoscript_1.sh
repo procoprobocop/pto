@@ -5,9 +5,6 @@ sleep 3
 PASSWORD=$(whiptail --title "Ввод пароля администратора" --passwordbox "Введите пароль Локального администратора и нажмите ОК для продолжения." 10 60 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
-echo "Производим резервное копирование перед обновлением"
-sleep 3
-echo "$PASSROOT" | sudo -S timeshift --create --rsync --yes --comments "Before update" --target /dev/sdb1
 echo "Производится обновление системы"
 sleep 3
 echo "$PASSWORD" | sudo -S dnf -y install kernel-lt-5.15.35-1.el7.3.x86_64 kernel-lt-tools-5.15.35-1.el7.3.x86_64 kernel-lt-devel-5.15.35-1.el7.3.x86_64 kernel-lt-headers-5.15.35-1.el7.3.x86_64
@@ -103,7 +100,7 @@ echo "$PASSWORD" | sudo -S mkdir /mnt/Disk2
 echo "$PASSWORD" | sudo -S chmod 777 /mnt/Disk2/
 #создаём символическую ссылку диска на рабочем столе локального пользователя
 ln -s /mnt/Disk2 /home/$USER/Рабочий\ стол/
-echo "$PASSWORD" | sudo -S chmod 777 /home/$USER/Рабочий\ стол/
+echo "$PASSWORD" | sudo -S chmod 777 /home/$USER/Рабочий\ стол/Disk2
 #редактируем файл /etc/fstab монтируя вновь созданный раздел диска /dev/sdb1 в директорию Disk2
 echo "$PASSWORD" | sudo -S sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2' >> /etc/fstab"
 #монтируем созданный диск
