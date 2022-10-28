@@ -24,21 +24,21 @@ exitstatus=$?
 if [ $exitstatus = 0 ]; then
 echo "Вы предоставили доступ следующим ip-адресам:" $IPSSH
 sleep 5
-echo "$PASSWORD" | sudo -S  sh -c "echo 'sshd: $IPSSH' >> /etc/hosts.allow"
+echo "$PASSWORD" | sudo -S sh -c "echo 'sshd: $IPSSH' >> /etc/hosts.allow"
 #в файле hosts.deny запрещаем подключение к настраиваемой машине всем ip-адресам не включённым список hosts.allow 
-echo "$PASSWORD" | sudo -S  sh -c "echo 'sshd: ALL' >> /etc/hosts.deny"
+echo "$PASSWORD" | sudo -S sh -c "echo 'sshd: ALL' >> /etc/hosts.deny"
 #меняем порт подключения 22 на 2002
-echo "$PASSWORD" | sudo -S  sed -i '17d' /etc/ssh/sshd_config
-echo "$PASSWORD" | sudo -S  perl -i -pe 'print "Port 2002\n" if $. == 17' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S sed -i '17d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S perl -i -pe 'print "Port 2002\n" if $. == 17' /etc/ssh/sshd_config
 #открываем доступ только по протоколу IPv4
-echo "$PASSWORD" | sudo -S  sed -i '18d' /etc/ssh/sshd_config
-echo "$PASSWORD" | sudo -S  perl -i -pe 'print "AddressFamily inet\n" if $. == 18' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S sed -i '18d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S perl -i -pe 'print "AddressFamily inet\n" if $. == 18' /etc/ssh/sshd_config
 #запрещаем подключение от учётной записи root
-echo "$PASSWORD" | sudo -S  sed -i '36d' /etc/ssh/sshd_config
-echo "$PASSWORD" | sudo -S  perl -i -pe 'print "PermitRootLogin no\n" if $. == 36' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S sed -i '36d' /etc/ssh/sshd_config
+echo "$PASSWORD" | sudo -S perl -i -pe 'print "PermitRootLogin no\n" if $. == 36' /etc/ssh/sshd_config
 #добавляем порт 2002 в selinux и перезапускаем службу sshd 
-echo "$PASSWORD" | sudo -S  semanage port -a -t ssh_port_t -p tcp 2002
-echo "$PASSWORD" | sudo -S  systemctl restart sshd
+echo "$PASSWORD" | sudo -S semanage port -a -t ssh_port_t -p tcp 2002
+echo "$PASSWORD" | sudo -S systemctl restart sshd
 else
 	echo "Вы выбрали отмену."
 	exit
@@ -96,15 +96,15 @@ echo "$PASSWORD" | sudo -S parted /dev/sdb mkpart primary ext4 0% 100%
 echo "$PASSWORD" | sudo -S mkfs.ext4 /dev/sdb1
 #создаём директорию Disk2, в которую смонтируем наш HDD
 echo "$PASSWORD" | sudo -S mkdir /mnt/Disk2
-#монтируем созданный диск
-echo "$PASSWORD" | sudo -S mount /mnt/Disk2
 #задаём директории Disk2 в которую примонтирован HDD доступ на чтение/запись/выполнение для всех: 
 echo "$PASSWORD" | sudo -S chmod 777 /mnt/Disk2/
 #создаём символическую ссылку диска на рабочем столе локального пользователя
 ln -s /mnt/Disk2 /home/$USER/Рабочий\ стол/
 echo "$PASSWORD" | sudo -S chmod 777 /home/$USER/Рабочий\ стол/
 #редактируем файл /etc/fstab монтируя вновь созданный раздел диска /dev/sdb1 в директорию Disk2
-echo "$PASSWORD" | sudo -S  sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2' >> /etc/fstab"
+echo "$PASSWORD" | sudo -S sh -c "echo '/dev/sdb1	/mnt/Disk2	ext4	defaults	1 2' >> /etc/fstab"
+#монтируем созданный диск
+echo "$PASSWORD" | sudo -S mount /mnt/Disk2
 #
 #
 #
@@ -129,6 +129,8 @@ echo "$PASSWORD" | sudo -S dnf -y install join-to-domain
 #запускаем скрипт добавления в домен
 sudo join-to-domain.sh
 sleep 60
+realm discover PTO.local
+sleep 60
 sudo join-to-domain.sh
 #проверяем доступность домена
 realm list
@@ -139,17 +141,17 @@ realm discover -v $DOMAIN
 hostname
 #даём группам "Администраторы домена" и "Пользователи домена" права выполнения команд от имени суперпользователя 
 cd /etc/
-echo "$PASSROOT" | sudo -S  perl -i -pe 'print "%Администраторы\\ домена  ALL=(ALL)       ALL\n" if $. == 108' sudoers
-echo "$PASSROOT" | sudo -S  perl -i -pe 'print "%Пользователи\\ домена  ALL=(ALL)       ALL\n" if $. == 109' sudoers
+echo "$PASSROOT" | sudo -S perl -i -pe 'print "%Администраторы\\ домена  ALL=(ALL)       ALL\n" if $. == 108' sudoers
+echo "$PASSROOT" | sudo -S perl -i -pe 'print "%Пользователи\\ домена  ALL=(ALL)       ALL\n" if $. == 109' sudoers
 #
 #
 #
 echo "Производим резервное копирование после ввода в домен"
 sleep 3
-echo "$PASSROOT" | sudo timeshift --create --rsync --yes --comments "After join-to-domain" --target /dev/sdb1
+echo "$PASSROOT" | sudo -S timeshift --create --rsync --yes --comments "After join-to-domain" --target /dev/sdb1
 #перезагружаемся, иначе магия не сработает
 if (whiptail --title "Требуется перезагрузка системы" --yesno "Перезагрузить систему сейчас?" 10 60) then
-	echo "$PASSWORD" | sudo reboot
+	echo "$PASSWORD" | sudo -S reboot
 else
 	echo "Не забудьте перезагрузить систему"
 	exit
