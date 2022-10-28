@@ -453,8 +453,7 @@ echo "$PASSROOT" | sudo -S timeshift --create --rsync --yes --comments "Before s
 #
 echo "Удаляем группу Пользователи домена из файла /etc/sudoers и перезагружаемся"
 sleep 3
-echo "$PASSWORD" | sudo -S rm -rf /mnt/Disk2/repo
-echo "$PASSWORD" | sudo -S rm -rf /mnt/Disk2/work
+echo "$PASSWORD" | sudo -S rm -rf /home/$USER@$DOMAIN/pto
 echo "$PASSWORD" | sudo -S sed -i '109d' /etc/sudoers
 #перезагружаемся, иначе магия не сработает
 echo "Не забудьте перезагрузить систему"
