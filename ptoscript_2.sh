@@ -343,7 +343,7 @@ fi
         echo "Установка программы для сканирования VueScan"
 		sleep 3
 		#устанавливаем пакеты для сканирования и распознования текста
-		echo "$PASSWORD" | sudo -S dnf -y install https://www.hamrick.com/files/vuex6497.rpml
+		echo "$PASSWORD" | sudo -S dnf -y install https://www.hamrick.com/files/vuex6497.rpm
 		echo "Настройки программы VueScan выполняете самостоятельно"
 		sleep 3
     fi
