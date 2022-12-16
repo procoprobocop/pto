@@ -221,7 +221,7 @@ fi
         echo "Установка Яндекс.браузер"
 		sleep 3
 		#запуск установочных пакетов 
-		echo "$PASSWORD" | sudo -S dnf -y install https://repo.yandex.ru/yandex-browser/rpm/stable/x86_64/yandex-browser-stable-22.9.3.894-1.x86_64.rpm
+		echo "$PASSWORD" | sudo -S dnf -y install https://repo.yandex.ru/yandex-browser/rpm/stable/x86_64/yandex-browser-stable-22.11.3.838-1.x86_64.rpm
 		#назначение браузером по умолчанию
 		xdg-settings set default-web-browser yandex-browser.desktop
     fi
