@@ -130,7 +130,7 @@ sudo join-to-domain.sh
 sleep 60
 realm discover PTO.local
 sleep 60
-sudo join-to-domain.sh
+sudo join-to-domain.sh || sudo join-to-domain.sh
 #проверяем доступность домена
 realm list
 #создаём переменную DOMAIN и присваиваем ей значение dns-имени домена
@@ -140,8 +140,8 @@ realm discover -v $DOMAIN
 hostname
 #даём группам "Администраторы домена" и "Пользователи домена" права выполнения команд от имени суперпользователя 
 cd /etc/
-echo "$PASSROOT" | sudo -S perl -i -pe 'print "%Администраторы\\ домена  ALL=(ALL)       ALL\n" if $. == 108' sudoers
-echo "$PASSROOT" | sudo -S perl -i -pe 'print "%Пользователи\\ домена  ALL=(ALL)       ALL\n" if $. == 109' sudoers
+sudo perl -i -pe 'print "%Администраторы\\ домена  ALL=(ALL)       ALL\n" if $. == 108' sudoers
+sudo perl -i -pe 'print "%Пользователи\\ домена  ALL=(ALL)       ALL\n" if $. == 109' sudoers
 #
 #
 #
